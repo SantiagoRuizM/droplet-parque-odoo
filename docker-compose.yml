@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: odoo-postgres-parque
+    environment:
+      POSTGRES_DB: odoo
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      TZ: America/Bogota
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  odoo:
+    image: odoo:17
+    container_name: odoo-parque
+    depends_on:
+      - postgres
+    environment:
+      HOST: postgres
+      USER: odoo
+      PASSWORD: odoo
+      TZ: America/Bogota
+    command: ["odoo", "-i", "base", "-d", "odoo", "--without-demo=all"]
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo_data:/var/lib/odoo
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  odoo_data:

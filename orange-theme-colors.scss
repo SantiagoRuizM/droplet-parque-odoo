@@ -1,0 +1,41 @@
+// Professional Orange Theme for Odoo
+// Modern orange color palette for professional business environment
+
+// Primary orange colors - Professional and modern
+$o-orange-primary: #E85A2B !default;        // Main orange (warm, professional)
+$o-orange-primary-light: #FF6B35 !default;   // Lighter orange (vibrant)
+$o-orange-primary-dark: #CC4A1D !default;    // Darker orange (serious)
+
+// Secondary orange tones
+$o-orange-secondary: #F4A261 !default;       // Warm amber
+$o-orange-accent: #E76F51 !default;          // Coral orange
+$o-orange-soft: #FFB486 !default;            // Soft peach
+
+// Supporting colors that complement orange
+$o-orange-navy: #2A3C4F !default;            // Dark navy (professional contrast)
+$o-orange-teal: #264653 !default;            // Dark teal (sophisticated)
+$o-orange-cream: #F4F3EE !default;           // Warm cream background
+
+// Professional grays that work with orange
+$o-orange-gray-900: #1A1B23 !default;        // Almost black
+$o-orange-gray-800: #2C2D35 !default;        // Dark gray
+$o-orange-gray-700: #424347 !default;        // Medium gray
+$o-orange-gray-600: #6B6C70 !default;        // Light gray
+$o-orange-gray-500: #9A9B9F !default;        // Muted gray
+
+// Text colors optimized for orange theme
+$o-orange-text-primary: $o-orange-gray-800 !default;     // Main text
+$o-orange-text-secondary: $o-orange-gray-600 !default;   // Secondary text
+$o-orange-text-muted: $o-orange-gray-500 !default;       // Muted text
+$o-orange-text-light: #FFFFFF !default;                  // White text for orange backgrounds
+
+// Status colors that work with orange theme
+$o-orange-success: #2D9A43 !default;         // Professional green
+$o-orange-info: #1976D2 !default;            // Professional blue
+$o-orange-warning: #F57C00 !default;         // Orange warning (consistent)
+$o-orange-danger: #C62828 !default;          // Professional red
+
+// Background colors
+$o-orange-bg-primary: #FFFFFF !default;      // Clean white
+$o-orange-bg-secondary: $o-orange-cream !default;  // Warm cream
+$o-orange-bg-dark: $o-orange-navy !default;  // Dark professional background
