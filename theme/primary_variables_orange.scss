@@ -1,0 +1,349 @@
+///
+/// This file regroups the variables that style odoo components.
+/// They are available in every asset bundle.
+///
+
+// Contrast ratio
+$o-frontend-min-contrast-ratio: 2.9 !default;
+
+// Color-scheme
+$o-webclient-color-scheme: bright !default;
+
+// ##### Palette #####
+// Color palette
+
+// Gray
+$o-gray-50: #f8f9fa !default;
+$o-gray-100: #f1f3f4 !default;
+$o-gray-200: #e9ecef !default;
+$o-gray-300: #dee2e6 !default;
+$o-gray-400: #ced4da !default;
+$o-gray-500: #adb5bd !default;
+$o-gray-600: #6c757d !default;
+$o-gray-700: #495057 !default;
+$o-gray-800: #343a40 !default;
+$o-gray-900: #212529 !default;
+
+// Basic
+$o-white: #FFFFFF !default;
+$o-black: #000000 !default;
+
+// Others
+$o-color-light-gray: #a5a5a5 !default;
+$o-color-dark-gray: #737373 !default;
+
+// Common
+$o-main-text-color: $o-gray-900 !default;
+
+// Alpha colors: Used to avoid regressions in design by using a common ground.
+$o-alpha-red: rgba(217, 83, 79, 0.1) !default;
+$o-alpha-orange: rgba(248, 148, 40, 0.1) !default;
+$o-alpha-yellow: rgba(243, 156, 18, 0.1) !default;
+$o-alpha-olive: rgba(173, 184, 59, 0.1) !default;
+$o-alpha-green: rgba(70, 136, 71, 0.1) !default;
+$o-alpha-teal: rgba(0, 150, 136, 0.1) !default;
+$o-alpha-blue: rgba(52, 144, 220, 0.1) !default;
+$o-alpha-violet: rgba(156, 39, 176, 0.1) !default;
+$o-alpha-purple: rgba(103, 58, 183, 0.1) !default;
+$o-alpha-pink: rgba(238, 64, 122, 0.1) !default;
+$o-alpha-brown: rgba(121, 85, 72, 0.1) !default;
+$o-alpha-grey: rgba(158, 158, 158, 0.1) !default;
+
+// ##### From palettes to usage #####
+// Theme pallette (Bootstrap extension)
+
+// Grays
+$o-grays: (
+    100: $o-gray-100,
+    200: $o-gray-200,
+    300: $o-gray-300,
+    400: $o-gray-400,
+    500: $o-gray-500,
+    600: $o-gray-600,
+    700: $o-gray-700,
+    800: $o-gray-800,
+    900: $o-gray-900,
+) !default;
+
+// PARQUE ERP ORANGE THEME - Professional orange color scheme
+$o-community-color: #E85A2B !default;  // Professional orange
+$o-enterprise-color: #714B67 !default;
+$o-enterprise-action-color: #017e84 !default;
+
+$o-brand-odoo: $o-community-color !default;
+$o-brand-primary: $o-community-color !default;
+
+$o-brand-secondary: #8f8f8f !default;
+$o-brand-lightsecondary: $o-gray-100 !default;
+
+$o-action: $o-brand-primary !default;
+$o-success: #28a745 !default;
+$o-info: #17a2b8 !default;
+$o-warning: #ffac00 !default;
+$o-danger: #dc3545 !default;
+$o-light: $o-gray-100 !default;
+$o-dark: $o-gray-800 !default;
+
+// Theme colors for use in components (Bootstrap compliant)
+$o-theme-colors: (
+    'primary': $o-brand-primary,
+    'secondary': $o-brand-secondary,
+    'success': $o-success,
+    'info': $o-info,
+    'warning': $o-warning,
+    'danger': $o-danger,
+    'light': $o-light,
+    'dark': $o-dark,
+) !default;
+
+// Theme pallette for use in kanban views
+$o-theme-colors-kanban: (
+    1: #EE4B39,
+    2: $o-warning,
+    3: #9C27B0,
+    4: #673AB7,
+    5: #3F51B5,
+    6: #2196F3,
+    7: #00BCD4,
+    8: #4CAF50,
+    9: #8BC34A,
+    10: #CDDC39,
+    11: #FFC107,
+) !default;
+
+// ##### Fonts, texts, layouts... #####
+// Font size
+$o-font-size-base: 14px !default;
+$o-line-height-base: 1.5 !default;
+
+$o-font-size-base-px: $o-font-size-base; // FIXME: This variable should be renamed or removed in master to avoid confusion
+$o-font-size-base-touch: 16px !default;
+$o-root-font-size: 12px !default;
+
+// Texts
+$o-main-bg-color: #f0eeee !default;
+$o-main-color-muted: rgba($o-main-text-color, $o-opacity-muted) !default;
+$o-main-headings-color: $o-gray-900 !default;
+$o-main-link-color: darken($o-brand-primary, 5%) !default;
+$o-main-favorite-color: #f3cc00 !default;
+$o-main-code-color: #d2317b !default;
+
+// UI colors
+$o-tooltip-background-color: rgba(0, 0, 0, 0.75) !default;
+$o-tooltip-color: white !default;
+$o-tooltip-arrow-color: $o-tooltip-background-color !default;
+$o-tooltip-text-color: white !default;
+$o-shadow-color: $o-gray-300 !default;
+
+// Border-radius
+$o-border-radius-sm: 2px !default;
+$o-border-radius: 3px !default;
+$o-border-radius-lg: 4px !default;
+
+// Z-indexes
+// Use them to ensure an order when it's important to have one
+$zindex-dropdown: 1000 !default;
+$zindex-sticky: 1020 !default;
+$zindex-fixed: 1030 !default;
+$zindex-modal-backdrop: 1040 !default;
+$zindex-modal: 1050 !default;
+$zindex-popover: 1060 !default;
+$zindex-tooltip: 1070 !default;
+
+// Spaces
+$o-horizontal-padding: 16px !default;
+$o-sheet-vpadding: 16px !default;
+
+// Opacity
+$o-opacity-disabled: 0.5 !default;
+$o-opacity-muted: 0.5 !default;
+
+// Inputs
+$o-input-padding-y: 2px !default;
+$o-input-padding-x: 4px !default;
+
+$o-input-border-required: $o-brand-primary !default;
+$o-input-hover-border-color: $o-gray-300 !default;
+
+// Layout
+$o-sheet-max-width: 1140px !default;
+
+// ##### Common Components #####
+// Buttons
+$o-btn-secondary-bg: #e9ecef !default;
+$o-btn-secondary-border: #e9ecef !default;
+
+// Dropdowns
+$o-dropdown-shadow: rgba($o-main-text-color, .2) !default;
+
+// Badges
+$o-badge-font-size: 0.8em !default;
+
+// Modals
+$o-modal-header-bg-color: $o-gray-100 !default;
+$o-modal-footer-bg-color: $o-gray-100 !default;
+
+// List groups
+$o-list-group-bg: #ffffff !default;
+
+// Navigation tabs
+$o-nav-tabs-font-size: 14px !default;
+$o-nav-tabs-font-weight: bold !default;
+$o-nav-tabs-border-color: rgba(0, 0, 0, 0.15) !default;
+$o-nav-tabs-link-color: $o-main-text-color !default;
+$o-nav-tabs-link-font-weight: normal !default;
+$o-nav-tabs-link-hover-border-color: rgba(0, 0, 0, 0.15) !default;
+$o-nav-tabs-link-hover-border-color-translucent: transparent transparent rgba(0, 0, 0, 0.15) !default;
+$o-nav-tabs-link-active-color: $o-brand-primary !default;
+$o-nav-tabs-link-active-border-color: $o-brand-primary !default;
+
+// ##### Kanban dashboard #####
+$o-kanban-mobile-gap: $o-horizontal-padding !default;
+$o-kanban-color-border: #dddddd !default;
+$o-kanban-dashboard-dropdown-bg: rgba(black, 0.4) !default;
+
+// ##### Control Panel #####
+// SearchBar
+$o-searchbar-height: 34px !default;
+
+// Color scheme used in form views when the option color is enabled
+$o-form-lightsecondary: #e9ecef !default;
+
+// ##### Cards #####
+$o-card-body-bg-color: white !default;
+
+// ##### Popover #####
+$o-popover-bg-color: white !default;
+
+// ##### Buttons #####
+// Extend Bootstrap btn-* classes with our colors
+
+$o-btns-bs-override: () !default;
+$o-btns-bs-override: map-merge((
+    "primary": (
+        background: $o-brand-primary,
+        border: $o-brand-primary,
+        color: $o-white,
+
+        hover-background: darken($o-brand-primary, 10%),
+        hover-border: darken($o-brand-primary, 20%),
+        hover-color: $o-white,
+
+        active-background: darken($o-brand-primary, 20%),
+        active-border: darken($o-brand-primary, 20%),
+        active-color: $o-white,
+    ),
+    "secondary": (
+        background: $o-btn-secondary-bg,
+        border: $o-btn-secondary-border,
+        color: $o-gray-800,
+
+        hover-background: darken($o-btn-secondary-bg, 8%),
+        hover-border: darken($o-btn-secondary-border, 12%),
+        hover-color: $o-gray-800,
+
+        active-background: darken($o-btn-secondary-bg, 10%),
+        active-border: darken($o-btn-secondary-border, 16%),
+        active-color: $o-gray-800,
+    ),
+    "success": (
+        background: $o-success,
+        border: $o-success,
+        color: $o-white,
+
+        hover-background: darken($o-success, 15%),
+        hover-border: darken($o-success, 15%),
+        hover-color: $o-white,
+
+        active-background: darken($o-success, 20%),
+        active-border: darken($o-success, 25%),
+        active-color: $o-white,
+    ),
+    "info": (
+        background: $o-info,
+        border: $o-info,
+        color: $o-white,
+
+        hover-background: darken($o-info, 15%),
+        hover-border: darken($o-info, 15%),
+        hover-color: $o-white,
+
+        active-background: darken($o-info, 20%),
+        active-border: darken($o-info, 25%),
+        active-color: $o-white,
+    ),
+    "warning": (
+        background: $o-warning,
+        border: $o-warning,
+        color: $o-gray-800,
+
+        hover-background: darken($o-warning, 15%),
+        hover-border: darken($o-warning, 15%),
+        hover-color: $o-gray-800,
+
+        active-background: darken($o-warning, 20%),
+        active-border: darken($o-warning, 25%),
+        active-color: $o-gray-800,
+    ),
+    "danger": (
+        background: $o-danger,
+        border: $o-danger,
+        color: $o-white,
+
+        hover-background: darken($o-danger, 15%),
+        hover-border: darken($o-danger, 15%),
+        hover-color: $o-white,
+
+        active-background: darken($o-danger, 20%),
+        active-border: darken($o-danger, 25%),
+        active-color: $o-white,
+    ),
+    "light": (
+        background: $o-light,
+        border: $o-light,
+        color: $o-gray-800,
+
+        hover-background: darken($o-light, 15%),
+        hover-border: darken($o-light, 15%),
+        hover-color: $o-gray-800,
+
+        active-background: darken($o-light, 20%),
+        active-border: darken($o-light, 25%),
+        active-color: $o-gray-800,
+    ),
+    "dark": (
+        background: $o-dark,
+        border: $o-dark,
+        color: $o-white,
+
+        hover-background: lighten($o-dark, 15%),
+        hover-border: lighten($o-dark, 15%),
+        hover-color: $o-white,
+
+        active-background: lighten($o-dark, 20%),
+        active-border: lighten($o-dark, 25%),
+        active-color: $o-white,
+    ),
+), $o-btns-bs-override);
+
+// Form validation colors
+$o-form-valid-color: $o-success !default;
+$o-form-invalid-color: $o-danger !default;
+
+// ##### Chat window #####
+$o-chat-window-bg: $o-gray-100 !default;
+
+// Odoo-specific color scheme compatibility variables
+$o-color-scheme-color-1: $o-white;
+$o-color-scheme-color-2: #b0bec5;
+$o-color-scheme-color-3: #78909c;
+$o-color-scheme-color-4: #607d8b;
+$o-color-scheme-color-5: #455a64;
+$o-color-scheme-color-6: #37474f;
+$o-color-scheme-color-7: #263238;
+$o-color-scheme-color-8: $o-black;
+
+$o-view-sample-data-disabled-color: #b6b6b6 !default;
+$o-text-color-dark: rgba(black, 0.87) !default;
+$o-text-color-dark-secondary: rgba(black, 0.54) !default;
+$o-text-color-dark-disabled: rgba(black, 0.26) !default;

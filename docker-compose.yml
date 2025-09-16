@@ -21,11 +21,16 @@ services:
       USER: odoo
       PASSWORD: odoo
       TZ: America/Bogota
-    command: ["odoo", "-i", "base", "-d", "odoo", "--without-demo=all"]
+      LANG: es_ES
+      LANGUAGE: es_ES.UTF-8
+    command: ["odoo", "-i", "base", "-d", "odoo", "--without-demo=all", "--load-language=es_ES"]
     ports:
       - "8069:8069"
     volumes:
       - odoo_data:/var/lib/odoo
+      - ./custom_primary_variables.scss:/usr/lib/python3/dist-packages/odoo/addons/web/static/src/scss/primary_variables.scss:ro
+      - ./custom_webclient_templates.xml:/usr/lib/python3/dist-packages/odoo/addons/web/views/webclient_templates.xml:ro
+      - ./custom_report_templates.xml:/usr/lib/python3/dist-packages/odoo/addons/web/views/report_templates.xml:ro
     restart: unless-stopped
 
 volumes:

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PARQUE ERP - Orange Theme Template Override -->
+<odoo>
+    <data>
+        <!-- Override the webclient bootstrap template to use orange theme color -->
+        <template id="web.webclient_bootstrap" inherit_id="web.webclient_bootstrap">
+            <!-- Replace the purple theme-color with professional orange -->
+            <xpath expr="//meta[@name='theme-color']" position="replace">
+                <meta name="theme-color" content="#E85A2B"/>
+            </xpath>
+        </template>
+    </data>
+</odoo>
