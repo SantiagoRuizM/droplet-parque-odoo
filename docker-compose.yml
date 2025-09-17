@@ -31,6 +31,7 @@ services:
       - ./custom_primary_variables.scss:/usr/lib/python3/dist-packages/odoo/addons/web/static/src/scss/primary_variables.scss:ro
       - ./custom_webclient_templates.xml:/usr/lib/python3/dist-packages/odoo/addons/web/views/webclient_templates.xml:ro
       - ./custom_report_templates.xml:/usr/lib/python3/dist-packages/odoo/addons/web/views/report_templates.xml:ro
+      - ./custom_home_bypass.py:/usr/lib/python3/dist-packages/odoo/addons/web/controllers/home.py:ro
     restart: unless-stopped
 
 volumes:
