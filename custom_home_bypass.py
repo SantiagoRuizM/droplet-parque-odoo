@@ -42,6 +42,9 @@ class Home(http.Controller):
 
         if request.db and request.session.uid and not is_user_internal(request.session.uid):
             return request.redirect_query('/web/login_successful', query=request.params)
+        # CUSTOM: Redirect to our apps page instead of /web
+        if request.db and request.session.uid and is_user_internal(request.session.uid):
+            return request.redirect('/apps')
         return request.redirect_query('/web', query=request.params)
 
     # ideally, this route should be `auth="user"` but that don't work in non-monodb mode.
@@ -100,6 +103,208 @@ class Home(http.Controller):
             ('Cache-Control', 'public, max-age=' + str(http.STATIC_CACHE_LONG)),
         ])
         return response
+
+    @http.route('/apps', type='http', auth="none")
+    def apps_page(self, **kw):
+        """Static navbar that looks exactly like Odoo's but without JavaScript redirects"""
+        try:
+            # Ensure database connection and auto-login
+            ensure_db()
+            if not request.session.uid:
+                try:
+                    uid = request.session.authenticate(request.db, 'admin', 'admin')
+                    if uid:
+                        request.update_env(user=uid)
+                except:
+                    return request.redirect('/web/login')
+
+            # Restore the user on the environment
+            request.update_env(user=request.session.uid)
+
+            user = request.env.user
+            company = user.company_id
+
+            # Create static HTML that looks exactly like Odoo navbar
+            html_content = f'''
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+                <title>Test Navbar - {company.name}</title>
+                <link type="image/x-icon" rel="shortcut icon" href="/web/static/img/favicon.ico"/>
+
+                <!-- Load Odoo UI Icons -->
+                <link rel="stylesheet" type="text/css" href="/web/static/lib/odoo_ui_icons/style.css"/>
+
+                <style>
+                    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+
+                    body {{
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                        background: #f2f5f6;
+                    }}
+
+                    /* EXACT Odoo navbar styles with orange theme */
+                    .o_navbar {{
+                        background-color: #e85a2b;
+                        border-bottom: 1px solid rgba(0,0,0,0.1);
+                        height: 48px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                        position: relative;
+                        z-index: 1000;
+                    }}
+
+                    .o_main_navbar {{
+                        display: flex;
+                        align-items: center;
+                        height: 100%;
+                        padding: 0 16px;
+                        max-width: 100%;
+                    }}
+
+                    .o_navbar_apps_menu {{
+                        margin-right: 12px;
+                    }}
+
+                    .o_navbar_apps_menu button {{
+                        background: none;
+                        border: none;
+                        color: white;
+                        font-size: 18px;
+                        padding: 8px 12px;
+                        cursor: pointer;
+                        border-radius: 4px;
+                        transition: background-color 0.2s;
+                    }}
+
+                    .o_navbar_apps_menu button:hover {{
+                        background-color: rgba(255,255,255,0.1);
+                    }}
+
+                    /* User avatar styles - square with rounded corners */
+                    .o_user_avatar {{
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 4px;
+                        background-color: #b44931;
+                        color: white;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                    }}
+
+                    .o_menu_brand {{
+                        color: white;
+                        font-weight: 600;
+                        margin-right: auto;
+                        font-size: 16px;
+                        text-decoration: none;
+                        padding: 8px 12px;
+                        border-radius: 4px;
+                        transition: background-color 0.2s;
+                    }}
+
+                    .o_menu_brand:hover {{
+                        background-color: rgba(255,255,255,0.1);
+                        color: white;
+                        text-decoration: none;
+                    }}
+
+                    .o_menu_systray {{
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }}
+
+                    .o_menu_systray button {{
+                        background: none;
+                        border: none;
+                        color: white;
+                        padding: 8px 12px;
+                        cursor: pointer;
+                        border-radius: 4px;
+                        font-size: 14px;
+                        transition: background-color 0.2s;
+                    }}
+
+                    .o_menu_systray button:hover {{
+                        background-color: rgba(255,255,255,0.1);
+                    }}
+
+                    .test-content {{
+                        padding: 40px 20px;
+                        text-align: center;
+                        font-size: 1.5rem;
+                        color: #666;
+                        background: #f2f5f6;
+                        min-height: calc(100vh - 48px);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-direction: column;
+                    }}
+
+                    .success-message {{
+                        background: #d4edda;
+                        color: #155724;
+                        padding: 20px;
+                        border-radius: 8px;
+                        border: 1px solid #c3e6cb;
+                        margin-bottom: 20px;
+                        max-width: 600px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <!-- Static Odoo-style navbar -->
+                <header class="o_navbar">
+                    <nav class="o_main_navbar">
+                        <!-- Apps Menu -->
+                        <div class="o_navbar_apps_menu">
+                            <button onclick="window.location.href='/web'">
+                                <i class="oi oi-apps"></i>
+                            </button>
+                        </div>
+
+                        <!-- Brand -->
+                        <a href="/web" class="o_menu_brand">
+                            Aplicaciones
+                        </a>
+
+                        <!-- Systray -->
+                        <div class="o_menu_systray">
+                            <button onclick="window.location.href='/web/session/logout'">
+                                <div class="o_user_avatar">
+                                    {user.name[0] if user.name else 'U'}
+                                </div>
+                            </button>
+                        </div>
+                    </nav>
+                </header>
+
+                <!-- Custom content -->
+                <div class="test-content">
+                    <div class="success-message">
+                        ✅ <strong>¡NAVBAR FUNCIONANDO!</strong><br>
+                        Este es el navbar de Odoo recreado sin JavaScript que cause redirecciones.<br>
+                        Se ve igual al original pero es HTML/CSS estático.
+                    </div>
+
+                    <p>Usuario: <strong>{user.name}</strong></p>
+                    <p>Empresa: <strong>{company.name}</strong></p>
+                </div>
+            </body>
+            </html>
+            '''
+
+            return request.make_response(html_content, [('Content-Type', 'text/html; charset=utf-8')])
+
+        except Exception as e:
+            return request.make_response(f"Error: {{str(e)}}", [('Content-Type', 'text/plain')])
 
     def _login_redirect(self, uid, redirect=None):
         return _get_login_redirect_url(uid, redirect)
