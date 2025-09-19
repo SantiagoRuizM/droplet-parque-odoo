@@ -124,6 +124,36 @@ class Home(http.Controller):
             user = request.env.user
             company = user.company_id
 
+            # Get installed applications
+            installed_apps = request.env['ir.module.module'].search([
+                ('state', '=', 'installed'),
+                ('application', '=', True)
+            ])
+
+            # Simple hardcoded mapping for common applications using hash fragment format
+            app_url_mapping = {
+                'crm': '/web#action=116&cids=1',  # CRM main action
+                'website': '/web#action=118&cids=1',  # Website main action
+                'mail': '/web#action=121&cids=1&menu_id=81',  # Discuss action (working example)
+                'contacts': '/web#action=117&cids=1',  # Contacts action
+                'calendar': '/web#action=119&cids=1',  # Calendar action
+            }
+
+            # Format apps data for template
+            apps_data = []
+            for app in installed_apps:
+                # Use hardcoded mapping if available, otherwise default
+                app_url = app_url_mapping.get(app.name, '/web')
+
+                app_data = {
+                    'name': app.name,
+                    'display_name': app.shortdesc or app.name,
+                    'summary': app.summary or app.shortdesc or app.name,
+                    'icon_url': f'/web/image/ir.module.module/{app.id}/icon_image' if app.icon else '/web/static/img/placeholder.png',
+                    'url': app_url
+                }
+                apps_data.append(app_data)
+
             # Create static HTML that looks exactly like Odoo navbar
             html_content = f'''
             <!DOCTYPE html>
@@ -235,27 +265,76 @@ class Home(http.Controller):
                         background-color: rgba(255,255,255,0.1);
                     }}
 
-                    .test-content {{
-                        padding: 40px 20px;
-                        text-align: center;
-                        font-size: 1.5rem;
-                        color: #666;
+                    .main-content {{
                         background: #f2f5f6;
                         min-height: calc(100vh - 48px);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        flex-direction: column;
+                        padding: 20px;
                     }}
 
-                    .success-message {{
-                        background: #d4edda;
-                        color: #155724;
-                        padding: 20px;
+                    .apps-container {{
+                        max-width: 1200px;
+                        margin: 0 auto;
+                    }}
+
+                    .apps-header {{
+                        margin-bottom: 30px;
+                        text-align: center;
+                    }}
+
+                    .apps-header h1 {{
+                        color: #333;
+                        font-size: 2rem;
+                        margin-bottom: 10px;
+                    }}
+
+                    .apps-grid {{
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 20px;
+                        justify-content: flex-start;
+                    }}
+
+                    .app-card {{
+                        background: white;
+                        border: 1px solid #ddd;
                         border-radius: 8px;
-                        border: 1px solid #c3e6cb;
-                        margin-bottom: 20px;
-                        max-width: 600px;
+                        padding: 20px;
+                        width: 200px;
+                        text-align: center;
+                        transition: all 0.2s;
+                        cursor: pointer;
+                    }}
+
+                    .app-card:hover {{
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                        transform: translateY(-2px);
+                    }}
+
+                    .app-icon {{
+                        width: 64px;
+                        height: 64px;
+                        margin: 0 auto 15px;
+                        border-radius: 8px;
+                        overflow: hidden;
+                    }}
+
+                    .app-icon img {{
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }}
+
+                    .app-name {{
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        color: #333;
+                        margin-bottom: 8px;
+                    }}
+
+                    .app-summary {{
+                        font-size: 0.9rem;
+                        color: #666;
+                        line-height: 1.4;
                     }}
                 </style>
             </head>
@@ -286,16 +365,23 @@ class Home(http.Controller):
                     </nav>
                 </header>
 
-                <!-- Custom content -->
-                <div class="test-content">
-                    <div class="success-message">
-                        ✅ <strong>¡NAVBAR FUNCIONANDO!</strong><br>
-                        Este es el navbar de Odoo recreado sin JavaScript que cause redirecciones.<br>
-                        Se ve igual al original pero es HTML/CSS estático.
-                    </div>
+                <!-- Main content -->
+                <div class="main-content">
+                    <div class="apps-container">
+                        <div class="apps-header">
+                            <h1>Bienvenido {user.name}</h1>
+                        </div>
 
-                    <p>Usuario: <strong>{user.name}</strong></p>
-                    <p>Empresa: <strong>{company.name}</strong></p>
+                        <div class="apps-grid">''' + ''.join([f'''
+                            <div class="app-card" onclick="window.location.href='{app["url"]}'">
+                                <div class="app-icon">
+                                    <img src="{app["icon_url"]}" alt="{app["display_name"]}" />
+                                </div>
+                                <div class="app-name">{app["display_name"]}</div>
+                                <div class="app-summary">{app["summary"]}</div>
+                            </div>''' for app in apps_data]) + '''
+                        </div>
+                    </div>
                 </div>
             </body>
             </html>
@@ -304,7 +390,7 @@ class Home(http.Controller):
             return request.make_response(html_content, [('Content-Type', 'text/html; charset=utf-8')])
 
         except Exception as e:
-            return request.make_response(f"Error: {{str(e)}}", [('Content-Type', 'text/plain')])
+            return request.make_response(f"Error: {str(e)}", [('Content-Type', 'text/plain')])
 
     def _login_redirect(self, uid, redirect=None):
         return _get_login_redirect_url(uid, redirect)
