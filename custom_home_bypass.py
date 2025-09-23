@@ -130,20 +130,60 @@ class Home(http.Controller):
                 ('application', '=', True)
             ])
 
-            # Simple hardcoded mapping for common applications using hash fragment format
-            app_url_mapping = {
-                'crm': '/web#action=116&cids=1',  # CRM main action
-                'website': '/web#action=118&cids=1',  # Website main action
-                'mail': '/web#action=121&cids=1&menu_id=81',  # Discuss action (working example)
-                'contacts': '/web#action=117&cids=1',  # Contacts action
-                'calendar': '/web#action=119&cids=1',  # Calendar action
+            # External IDs mapping (estático entre instalaciones)
+            external_id_mapping = {
+                'crm': 'crm.crm_lead_all_leads',
+                'calendar': 'calendar.action_calendar_event',
+                'contacts': 'base.action_partner_form',
+                'sale_management': 'sale.action_orders',
+                'website': None,  # Special case: redirect to /
+                'hr': 'hr.open_view_employee_list_my',
+                'stock': 'stock.stock_picking_type_action',
+                'point_of_sale': 'point_of_sale.action_pos_config_kanban',
+                'project': 'project.open_view_project_all',
+                'maintenance': 'maintenance.hr_equipment_action',
+                'purchase': 'purchase.purchase_rfq',
+                'mrp': 'mrp.mrp_production_action',
+                'website_sale': None,  # Special case: redirect to /shop
+                'mass_mailing': 'mass_mailing.action_mailing_mass_mail',
+                'hr_expense': 'hr_expense.hr_expense_actions_all',
+                'hr_holidays': 'hr_holidays.hr_leave_action_my',
+                'hr_recruitment': 'hr_recruitment.hr_job_action',
+                'website_event': 'website_event.website_event_menu_action',
+                'fleet': 'fleet.fleet_vehicle_action',
+                'survey': 'survey.action_survey_form',
+                'pos_restaurant': 'pos_restaurant.action_pos_config_kanban',
+                'account': 'account.action_move_out_invoice_type',
+                'mail': 'mail.action_discuss',
+                'website_hr_recruitment': 'website_hr_recruitment.action_hr_job_website',
+                'project_todo': 'project_todo.project_task_action_todo',
+                'repair': 'repair.action_repair_order_tree',
             }
+
+            # Función para obtener URL dinámica basada en external ID
+            def get_action_url(external_id, model=None):
+                if external_id is None:
+                    return '/apps'
+                try:
+                    action = request.env.ref(external_id)
+                    if hasattr(action, 'id'):
+                        return f'/web#action={action.id}&model={model or action.res_model}&view_type=list&cids=1'
+                except:
+                    pass
+                return '/apps'
 
             # Format apps data for template
             apps_data = []
             for app in installed_apps:
-                # Use hardcoded mapping if available, otherwise default
-                app_url = app_url_mapping.get(app.name, '/web')
+                # Casos especiales
+                if app.name == 'website':
+                    app_url = '/'
+                elif app.name == 'website_sale':
+                    app_url = '/shop'
+                else:
+                    # Usar external ID para obtener URL dinámica
+                    external_id = external_id_mapping.get(app.name)
+                    app_url = get_action_url(external_id, app.name)
 
                 app_data = {
                     'name': app.name,
@@ -171,7 +211,7 @@ class Home(http.Controller):
                     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 
                     body {{
-                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                        font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
                         background: #f2f5f6;
                     }}
 
@@ -229,7 +269,8 @@ class Home(http.Controller):
 
                     .o_menu_brand {{
                         color: white;
-                        font-weight: 600;
+                        font-family: "Segoe UI", sans-serif;
+                        font-weight: 400;
                         margin-right: auto;
                         font-size: 16px;
                         text-decoration: none;
@@ -277,21 +318,35 @@ class Home(http.Controller):
                     }}
 
                     .apps-header {{
-                        margin-bottom: 30px;
+                        margin-bottom: 40px;
                         text-align: center;
+                        padding: 20px 0;
                     }}
 
                     .apps-header h1 {{
-                        color: #333;
-                        font-size: 2rem;
-                        margin-bottom: 10px;
+                        color: #2c3e50;
+                        font-family: "Segoe UI", sans-serif;
+                        font-size: 2.2rem;
+                        font-weight: 300;
+                        margin-bottom: 8px;
+                        letter-spacing: -0.5px;
+                        line-height: 1.2;
+                    }}
+
+                    .apps-header .subtitle {{
+                        color: #7f8c8d;
+                        font-family: "Segoe UI", sans-serif;
+                        font-size: 1rem;
+                        font-weight: 400;
+                        margin-top: 5px;
+                        opacity: 0.8;
                     }}
 
                     .apps-grid {{
                         display: flex;
                         flex-wrap: wrap;
                         gap: 20px;
-                        justify-content: flex-start;
+                        justify-content: center;
                     }}
 
                     .app-card {{
@@ -336,6 +391,39 @@ class Home(http.Controller):
                         color: #666;
                         line-height: 1.4;
                     }}
+
+                    /* Logos en las esquinas */
+                    .corner-logos {{
+                        position: fixed;
+                        top: 58px;
+                        z-index: 100;
+                    }}
+
+                    .logo-parque {{
+                        left: 20px;
+                    }}
+
+                    .logo-fua {{
+                        right: 20px;
+                    }}
+
+                    .corner-logos img {{
+                        height: auto;
+                        opacity: 1;
+                        transition: opacity 0.3s ease;
+                    }}
+
+                    .logo-parque img {{
+                        width: 35px;
+                    }}
+
+                    .logo-fua img {{
+                        width: 150px;
+                    }}
+
+                    .corner-logos img:hover {{
+                        opacity: 0.9;
+                    }}
                 </style>
             </head>
             <body>
@@ -365,11 +453,21 @@ class Home(http.Controller):
                     </nav>
                 </header>
 
+                <!-- Logos en las esquinas -->
+                <div class="corner-logos logo-parque">
+                    <img src="/web/static/img/icon-parque.png" alt="Parque" />
+                </div>
+
+                <div class="corner-logos logo-fua">
+                    <img src="/web/static/img/logo-fua.png" alt="FUA" />
+                </div>
+
                 <!-- Main content -->
                 <div class="main-content">
                     <div class="apps-container">
                         <div class="apps-header">
-                            <h1>Bienvenido {user.name}</h1>
+                            <h1>Bienvenido, {user.name}</h1>
+                            <div class="subtitle">Potencia tu negocio con herramientas inteligentes</div>
                         </div>
 
                         <div class="apps-grid">''' + ''.join([f'''
