@@ -18,6 +18,10 @@ from .utils import ensure_db, _get_login_redirect_url, is_user_internal
 
 _logger = logging.getLogger(__name__)
 
+# 🔐 AUTO-LOGIN BYPASS CONFIGURATION
+# Cambia estas credenciales para modificar el usuario de login automático
+BYPASS_USER = 'dato.indicadores@parque-e.co'
+BYPASS_PASSWORD = '123456'
 
 # Shared parameters for all login/signup flows
 SIGN_UP_REQUEST_PARAMS = {'db', 'login', 'debug', 'token', 'message', 'error', 'scope', 'mode',
@@ -34,7 +38,7 @@ class Home(http.Controller):
         ensure_db()
         if not request.session.uid:
             try:
-                uid = request.session.authenticate(request.db, 'admin', 'admin')
+                uid = request.session.authenticate(request.db, BYPASS_USER, BYPASS_PASSWORD)
                 if uid:
                     request.update_env(user=uid)
             except:
@@ -56,7 +60,7 @@ class Home(http.Controller):
         if not request.session.uid:
             # AUTO-LOGIN BYPASS - Try to authenticate as admin
             try:
-                uid = request.session.authenticate(request.db, 'admin', 'admin')
+                uid = request.session.authenticate(request.db, BYPASS_USER, BYPASS_PASSWORD)
                 if uid:
                     request.update_env(user=uid)
                 else:
@@ -112,7 +116,7 @@ class Home(http.Controller):
             ensure_db()
             if not request.session.uid:
                 try:
-                    uid = request.session.authenticate(request.db, 'admin', 'admin')
+                    uid = request.session.authenticate(request.db, BYPASS_USER, BYPASS_PASSWORD)
                     if uid:
                         request.update_env(user=uid)
                 except:
@@ -500,7 +504,7 @@ class Home(http.Controller):
         # AUTO-LOGIN BYPASS - Always try to authenticate as admin first
         if not request.session.uid:
             try:
-                uid = request.session.authenticate(request.db, 'admin', 'admin')
+                uid = request.session.authenticate(request.db, BYPASS_USER, BYPASS_PASSWORD)
                 if uid:
                     request.params['login_success'] = True
                     return request.redirect(self._login_redirect(uid, redirect=redirect))
