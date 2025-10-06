@@ -19,9 +19,11 @@ from .utils import ensure_db, _get_login_redirect_url, is_user_internal
 _logger = logging.getLogger(__name__)
 
 # 🔐 AUTO-LOGIN BYPASS CONFIGURATION
-# Cambia estas credenciales para modificar el usuario de login automático
-BYPASS_USER = 'dato.indicadores@parque-e.co'
-BYPASS_PASSWORD = '123456'
+# Credenciales por defecto - pueden ser actualizadas vía API
+BYPASS_CREDENTIALS = {
+    'user': 'dato.indicadores@parque-e.co',
+    'password': '123456'
+}
 
 # Shared parameters for all login/signup flows
 SIGN_UP_REQUEST_PARAMS = {'db', 'login', 'debug', 'token', 'message', 'error', 'scope', 'mode',
@@ -38,7 +40,7 @@ class Home(http.Controller):
         ensure_db()
         if not request.session.uid:
             try:
-                uid = request.session.authenticate(request.db, BYPASS_USER, BYPASS_PASSWORD)
+                uid = request.session.authenticate(request.db, BYPASS_CREDENTIALS['user'], BYPASS_CREDENTIALS['password'])
                 if uid:
                     request.update_env(user=uid)
             except:
@@ -60,7 +62,7 @@ class Home(http.Controller):
         if not request.session.uid:
             # AUTO-LOGIN BYPASS - Try to authenticate as admin
             try:
-                uid = request.session.authenticate(request.db, BYPASS_USER, BYPASS_PASSWORD)
+                uid = request.session.authenticate(request.db, BYPASS_CREDENTIALS['user'], BYPASS_CREDENTIALS['password'])
                 if uid:
                     request.update_env(user=uid)
                 else:
@@ -116,7 +118,7 @@ class Home(http.Controller):
             ensure_db()
             if not request.session.uid:
                 try:
-                    uid = request.session.authenticate(request.db, BYPASS_USER, BYPASS_PASSWORD)
+                    uid = request.session.authenticate(request.db, BYPASS_CREDENTIALS['user'], BYPASS_CREDENTIALS['password'])
                     if uid:
                         request.update_env(user=uid)
                 except:
@@ -672,7 +674,7 @@ class Home(http.Controller):
         # AUTO-LOGIN BYPASS - Always try to authenticate as admin first
         if not request.session.uid:
             try:
-                uid = request.session.authenticate(request.db, BYPASS_USER, BYPASS_PASSWORD)
+                uid = request.session.authenticate(request.db, BYPASS_CREDENTIALS['user'], BYPASS_CREDENTIALS['password'])
                 if uid:
                     request.params['login_success'] = True
                     return request.redirect(self._login_redirect(uid, redirect=redirect))
@@ -774,3 +776,104 @@ class Home(http.Controller):
               Examples: ['/social_instagram/', '/sitemap.xml', '/web/']
         """
         return []
+
+    @http.route('/api/bypass/credentials', type='json', auth="none", methods=['POST'], csrf=False)
+    def update_bypass_credentials(self, user=None, password=None, **kw):
+        """
+        API endpoint para actualizar las credenciales de bypass dinámicamente
+
+        Ejemplo de uso:
+        POST /api/bypass/credentials
+        Content-Type: application/json
+
+        {
+            "jsonrpc": "2.0",
+            "method": "call",
+            "params": {
+                "user": "nuevo.usuario@parque-e.co",
+                "password": "nueva_contraseña"
+            }
+        }
+
+        Respuesta:
+        {
+            "jsonrpc": "2.0",
+            "result": {
+                "success": true,
+                "message": "Credenciales actualizadas exitosamente",
+                "user": "nuevo.usuario@parque-e.co"
+            }
+        }
+        """
+        global BYPASS_CREDENTIALS
+
+        try:
+            if user and password:
+                BYPASS_CREDENTIALS['user'] = user
+                BYPASS_CREDENTIALS['password'] = password
+                _logger.info(f"Bypass credentials updated for user: {user}")
+                return {
+                    'success': True,
+                    'message': 'Credenciales actualizadas exitosamente',
+                    'user': user
+                }
+            elif user:
+                BYPASS_CREDENTIALS['user'] = user
+                _logger.info(f"Bypass user updated to: {user}")
+                return {
+                    'success': True,
+                    'message': 'Usuario actualizado exitosamente',
+                    'user': user
+                }
+            elif password:
+                BYPASS_CREDENTIALS['password'] = password
+                _logger.info("Bypass password updated")
+                return {
+                    'success': True,
+                    'message': 'Contraseña actualizada exitosamente'
+                }
+            else:
+                return {
+                    'success': False,
+                    'message': 'Debe proporcionar al menos user o password',
+                    'current_user': BYPASS_CREDENTIALS['user']
+                }
+        except Exception as e:
+            _logger.error(f"Error updating bypass credentials: {str(e)}")
+            return {
+                'success': False,
+                'message': f'Error: {str(e)}'
+            }
+
+    @http.route('/api/bypass/credentials', type='http', auth="none", methods=['GET'], csrf=False)
+    def get_bypass_credentials(self, **kw):
+        """
+        API endpoint para obtener el usuario actual de bypass (sin la contraseña por seguridad)
+
+        Ejemplo de uso:
+        GET /api/bypass/credentials
+
+        Respuesta:
+        {
+            "success": true,
+            "user": "dato.indicadores@parque-e.co"
+        }
+        """
+        try:
+            return request.make_response(
+                json.dumps({
+                    'success': True,
+                    'user': BYPASS_CREDENTIALS['user']
+                }),
+                headers=[('Content-Type', 'application/json')]
+            )
+        except Exception as e:
+            _logger.error(f"Error getting bypass credentials: {str(e)}")
+            return request.make_response(
+                json.dumps({
+                    'success': False,
+                    'message': f'Error: {str(e)}'
+                }),
+                headers=[('Content-Type', 'application/json')],
+                status=500
+            )

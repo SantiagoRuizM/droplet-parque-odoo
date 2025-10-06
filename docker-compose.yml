@@ -36,6 +36,7 @@ services:
       - ./assets/images/icons/favicon.ico:/usr/lib/python3/dist-packages/odoo/addons/web/static/img/favicon.ico:ro
       - ./assets/images/logos/logo-fua.png:/usr/lib/python3/dist-packages/odoo/addons/web/static/img/logo-fua.png:ro
       - ./custom_user_menu_items.js:/usr/lib/python3/dist-packages/odoo/addons/web/static/src/webclient/user_menu/user_menu_items.js:ro
+      - ./custom_session.py:/usr/lib/python3/dist-packages/odoo/addons/web/controllers/session.py:ro
       - ./create_users.py:/mnt/extra-addons/create_users.py:ro
       - ./users.json:/mnt/extra-addons/users.json:ro
     restart: unless-stopped
