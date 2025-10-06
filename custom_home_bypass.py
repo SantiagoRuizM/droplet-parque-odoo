@@ -571,7 +571,7 @@ class Home(http.Controller):
                                 </button>
                                 <div class="user-dropdown" id="userDropdown">
                                     <a href="#" class="user-dropdown-item" id="profileBtn">Perfil</a>
-                                    <a href="http://localhost:3000" class="user-dropdown-item">Cerrar sesión</a>
+                                    <a href="#" class="user-dropdown-item" id="logoutBtn">Cerrar sesión</a>
                                 </div>
                             </div>
                         </div>
@@ -653,6 +653,16 @@ class Home(http.Controller):
                         e.preventDefault();
                         // TODO: Add profile page redirect here
                         console.log('Profile clicked - not implemented yet');
+                    });
+
+                    // Logout button - destroy session and redirect to localhost:3000
+                    const logoutBtn = document.getElementById('logoutBtn');
+                    logoutBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Destruir sesión y redirigir a localhost:3000
+                        fetch('/web/session/logout').finally(function() {
+                            window.location.href = 'http://localhost:3000';
+                        });
                     });
                 </script>
             </body>
@@ -790,18 +800,8 @@ class Home(http.Controller):
             "jsonrpc": "2.0",
             "method": "call",
             "params": {
-                "user": "nuevo.usuario@parque-e.co",
-                "password": "nueva_contraseña"
-            }
-        }
-
-        Respuesta:
-        {
-            "jsonrpc": "2.0",
-            "result": {
-                "success": true,
-                "message": "Credenciales actualizadas exitosamente",
-                "user": "nuevo.usuario@parque-e.co"
+                "user": "usuario",
+                "password": "contraseña_segura"
             }
         }
         """

@@ -19,14 +19,16 @@ export function preferencesItem(env) {
 }
 
 function logOutItem(env) {
-    const route = "/web/session/logout";
     return {
         type: "item",
         id: "logout",
         description: _t("Log out"),
-        href: `${browser.location.origin}${route}`,
+        href: "http://localhost:3000",
         callback: () => {
-            browser.location.href = route;
+            // Destruir sesión y redirigir a localhost:3000
+            fetch("/web/session/logout").finally(() => {
+                window.location.href = "http://localhost:3000";
+            });
         },
         sequence: 70,
     };
