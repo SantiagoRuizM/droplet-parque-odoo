@@ -198,6 +198,8 @@ class Home(http.Controller):
                 }
                 apps_data.append(app_data)
 
+            apps_dropdown_html = ''.join([f'<a href="{app["url"]}" class="apps-dropdown-item">{app["display_name"]}</a>'for app in apps_data])
+
             # Create static HTML that looks exactly like Odoo navbar
             html_content = f'''
             <!DOCTYPE html>
@@ -428,6 +430,114 @@ class Home(http.Controller):
                     .corner-logos img:hover {{
                         opacity: 0.9;
                     }}
+
+                    /* Dropdown styles */
+                    .apps-dropdown {{
+                        position: absolute;
+                        top: 48px;
+                        left: 0;
+                        background: white;
+                        border-radius: 4px;
+                        border: 1px solid #d1d5db;
+                        box-shadow: none;
+                        min-width: 160px;
+                        max-width: 180px;
+                        max-height: 400px;
+                        overflow-y: auto;
+                        display: none;
+                        z-index: 1001;
+                        padding: 4px 0;
+                    }}
+
+                    .apps-dropdown.show {{
+                        display: block;
+                    }}
+
+                    .apps-dropdown-item {{
+                        display: block;
+                        padding: 8px 12px;
+                        color: #2c3e50;
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-family: "Segoe UI", sans-serif;
+                        transition: background-color 0.2s;
+                        cursor: pointer;
+                        border: none;
+                        background: none;
+                        width: 100%;
+                        text-align: left;
+                    }}
+
+                    
+                    .apps-dropdown-item:hover {{
+                        background-color: #ebebeb;
+                    }}
+
+                    /* Scrollbar personalizado para el dropdown */
+                    .apps-dropdown::-webkit-scrollbar {{
+                        width: 6px;
+                    }}
+
+                    .apps-dropdown::-webkit-scrollbar-track {{
+                        background: #f1f1f1;
+                    }}
+
+                    .apps-dropdown::-webkit-scrollbar-thumb {{
+                        background: #888;
+                        border-radius: 3px;
+                    }}
+
+                    .apps-dropdown::-webkit-scrollbar-thumb:hover {{
+                        background: #555;
+                    }}
+
+                    /* User dropdown styles */
+                    .o_user_menu {{
+                        position: relative;
+                    }}
+
+                    .user-dropdown {{
+                        position: fixed;
+                        top: 48px;
+                        right: 16px;
+                        background: white;
+                        border-radius: 4px;
+                        border: 1px solid #d1d5db;
+                        box-shadow: none;
+                        min-width: 160px;
+                        max-width: 180px;
+                        display: none;
+                        z-index: 1001;
+                        padding: 4px 0;
+                    }}
+
+                    .user-dropdown.show {{
+                        display: block;
+                    }}
+
+                    .user-dropdown-item {{
+                        display: block;
+                        padding: 8px 12px;
+                        color: #2c3e50;
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-family: "Segoe UI", sans-serif;
+                        transition: background-color 0.2s;
+                        cursor: pointer;
+                        border: none;
+                        background: none;
+                        width: 100%;
+                        text-align: left;
+                    }}
+
+                    .user-dropdown-item:hover {{
+                        background-color: #ebebeb;
+                    }}
+
+                    .o_user_menu button {{
+                        position: relative;
+                    }}
+
                 </style>
             </head>
             <body>
@@ -436,23 +546,32 @@ class Home(http.Controller):
                     <nav class="o_main_navbar">
                         <!-- Apps Menu -->
                         <div class="o_navbar_apps_menu">
-                            <button onclick="window.location.href='/web'">
+                            <button id="appsMenuBtn">
                                 <i class="oi oi-apps"></i>
                             </button>
+                            <div class="apps-dropdown" id="appsDropdown">
+                                {apps_dropdown_html}
+                            </div>
                         </div>
 
                         <!-- Brand -->
-                        <a href="/web" class="o_menu_brand">
+                        <a class="o_menu_brand">
                             Aplicaciones
                         </a>
 
                         <!-- Systray -->
                         <div class="o_menu_systray">
-                            <button onclick="window.location.href='/web/session/logout'">
-                                <div class="o_user_avatar">
-                                    {user.name[0] if user.name else 'U'}
+                            <div class="o_user_menu">
+                                <button id="userMenuBtn">
+                                    <div class="o_user_avatar">
+                                        {user.name[0] if user.name else 'U'}
+                                    </div>
+                                </button>
+                                <div class="user-dropdown" id="userDropdown">
+                                    <a href="#" class="user-dropdown-item" id="profileBtn">Perfil</a>
+                                    <a href="http://localhost:3000" class="user-dropdown-item">Cerrar sesión</a>
                                 </div>
-                            </button>
+                            </div>
                         </div>
                     </nav>
                 </header>
@@ -485,6 +604,55 @@ class Home(http.Controller):
                         </div>
                     </div>
                 </div>
+                <script>
+                    // Toggle apps dropdown menu
+                    const appsMenuBtn = document.getElementById('appsMenuBtn');
+                    const appsDropdown = document.getElementById('appsDropdown');
+
+                    appsMenuBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        appsDropdown.classList.toggle('show');
+                        // Close user dropdown if open
+                        userDropdown.classList.remove('show');
+                    });
+
+                    // Toggle user dropdown menu
+                    const userMenuBtn = document.getElementById('userMenuBtn');
+                    const userDropdown = document.getElementById('userDropdown');
+
+                    userMenuBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        userDropdown.classList.toggle('show');
+                        // Close apps dropdown if open
+                        appsDropdown.classList.remove('show');
+                    });
+
+                    // Close dropdowns when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!appsMenuBtn.contains(e.target) && !appsDropdown.contains(e.target)) {
+                            appsDropdown.classList.remove('show');
+                        }
+                        if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                            userDropdown.classList.remove('show');
+                        }
+                    });
+
+                    // Close dropdowns on ESC key
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') {
+                            appsDropdown.classList.remove('show');
+                            userDropdown.classList.remove('show');
+                        }
+                    });
+
+                    // Profile button (currently does nothing)
+                    const profileBtn = document.getElementById('profileBtn');
+                    profileBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // TODO: Add profile page redirect here
+                        console.log('Profile clicked - not implemented yet');
+                    });
+                </script>
             </body>
             </html>
             '''
