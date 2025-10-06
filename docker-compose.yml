@@ -33,6 +33,7 @@ services:
       - ./custom_report_templates.xml:/usr/lib/python3/dist-packages/odoo/addons/web/views/report_templates.xml:ro
       - ./custom_home_bypass.py:/usr/lib/python3/dist-packages/odoo/addons/web/controllers/home.py:ro
       - ./assets/images/icons/icon-parque.png:/usr/lib/python3/dist-packages/odoo/addons/web/static/img/icon-parque.png:ro
+      - ./assets/images/icons/favicon.ico:/usr/lib/python3/dist-packages/odoo/addons/web/static/img/favicon.ico:ro
       - ./assets/images/logos/logo-fua.png:/usr/lib/python3/dist-packages/odoo/addons/web/static/img/logo-fua.png:ro
       - ./create_users.py:/mnt/extra-addons/create_users.py:ro
       - ./users.json:/mnt/extra-addons/users.json:ro

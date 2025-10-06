@@ -20,7 +20,7 @@
         <meta charset="utf-8"/>
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <title t-esc="title or 'ERP Parque del emprendimiento'"/>
-        <link type="image/x-icon" rel="shortcut icon" t-att-href="x_icon or '/web/static/img/favicon.ico'"/>
+        <link type="image/x-icon" rel="shortcut icon" t-att-href="x_icon or '/web/static/img/icon-parque.png'"/>
         <script id="web.layout.odooscript" type="text/javascript">
             var odoo = {
                 csrf_token: "<t t-nocache="The csrf token must always be up to date." t-esc="request.csrf_token(None)"/>",
@@ -246,6 +246,7 @@
 
     <template id="web.webclient_bootstrap">
         <t t-call="web.layout">
+            <t t-set="x_icon" t-value="'/web/static/img/icon-parque.png'"/>
             <t t-set="head_web">
                 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
                 <meta name="theme-color" content="#71639e"/>

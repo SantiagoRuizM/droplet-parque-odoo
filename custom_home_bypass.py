@@ -207,8 +207,8 @@ class Home(http.Controller):
             <head>
                 <meta charset="utf-8"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-                <title>Test Navbar - {company.name}</title>
-                <link type="image/x-icon" rel="shortcut icon" href="/web/static/img/favicon.ico"/>
+                <title>Odoo - Aplicaciones</title>
+                <link type="image/x-icon" rel="shortcut icon" href="/web/static/img/icon-parque.png"/>
 
                 <!-- Load Odoo UI Icons -->
                 <link rel="stylesheet" type="text/css" href="/web/static/lib/odoo_ui_icons/style.css"/>
