@@ -3,6 +3,7 @@
 import json
 import logging
 import psycopg2
+from hashlib import sha512
 
 
 import odoo
@@ -21,7 +22,7 @@ _logger = logging.getLogger(__name__)
 # 🔐 AUTO-LOGIN BYPASS CONFIGURATION
 # Credenciales por defecto - pueden ser actualizadas vía API
 BYPASS_CREDENTIALS = {
-    'user': 'dato.indicadores@parque-e.co',
+    'user': 'dato.calidad@parque-e.co',
     'password': '123456'
 }
 
@@ -129,6 +130,15 @@ class Home(http.Controller):
 
             user = request.env.user
             company = user.company_id
+
+            # Get user's avatar color using the same algorithm as Odoo
+            # (same as avatar_mixin.py get_hsl_from_seed function)
+            seed = user.name + str(user.partner_id.create_date.timestamp() if user.partner_id.create_date else "")
+            hashed_seed = sha512(seed.encode()).hexdigest()
+            hue = int(hashed_seed[0:2], 16) * 360 / 255
+            sat = int(hashed_seed[2:4], 16) * ((70 - 40) / 255) + 40
+            lig = 45
+            user_avatar_color = f'hsl({hue:.0f}, {sat:.0f}%, {lig:.0f}%)'
 
             # Get installed applications
             installed_apps = request.env['ir.module.module'].search([
@@ -262,16 +272,15 @@ class Home(http.Controller):
 
                     /* User avatar styles - square with rounded corners */
                     .o_user_avatar {{
-                        width: 24px;
-                        height: 24px;
-                        border-radius: 4px;
-                        background-color: #b44931;
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 3px;
+                        background-color: {user_avatar_color};
                         color: white;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        font-size: 12px;
-                        font-weight: 600;
+                        font-size: 14px;
                         text-transform: uppercase;
                     }}
 
