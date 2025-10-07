@@ -8,7 +8,7 @@ export function preferencesItem(env) {
     return {
         type: "item",
         id: "settings",
-        description: _t("Preferences"),
+        description: _t("Perfil"),
         callback: async function () {
             const actionDescription = await env.services.orm.call("res.users", "action_get");
             actionDescription.res_id = env.services.user.userId;

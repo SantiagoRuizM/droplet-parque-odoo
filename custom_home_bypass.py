@@ -656,12 +656,67 @@ class Home(http.Controller):
                         }
                     });
 
-                    // Profile button (currently does nothing)
+                    // Profile button - open user preferences modal
                     const profileBtn = document.getElementById('profileBtn');
-                    profileBtn.addEventListener('click', function(e) {
+                    profileBtn.addEventListener('click', async function(e) {
                         e.preventDefault();
-                        // TODO: Add profile page redirect here
-                        console.log('Profile clicked - not implemented yet');
+
+                        try {
+                            // Step 1: Get current user ID from session info
+                            const sessionResponse = await fetch('/web/session/get_session_info', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    jsonrpc: "2.0",
+                                    method: "call",
+                                    params: {}
+                                })
+                            });
+
+                            const sessionData = await sessionResponse.json();
+                            const userId = sessionData.result.uid;
+
+                            if (!userId) {
+                                console.error('No user ID in session');
+                                window.location.href = '/web/login';
+                                return;
+                            }
+
+                            // Step 2: Call action_get to get the action descriptor
+                            const actionResponse = await fetch('/web/dataset/call_kw/res.users/action_get', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    jsonrpc: "2.0",
+                                    method: "call",
+                                    params: {
+                                        model: "res.users",
+                                        method: "action_get",
+                                        args: [],
+                                        kwargs: {}
+                                    }
+                                })
+                            });
+
+                            const actionData = await actionResponse.json();
+
+                            // Step 3: Build URL and redirect
+                            if (actionData.result) {
+                                const action = actionData.result;
+                                const url = `/web#action=${action.id || ''}&id=${userId}&model=res.users&view_type=form`;
+                                window.location.href = url;
+                            } else {
+                                console.error('No action result received');
+                                window.location.href = '/web';
+                            }
+                        } catch (error) {
+                            console.error('Error opening profile:', error);
+                            window.location.href = '/web';
+                        }
                     });
 
                     // Logout button - destroy session and redirect to localhost:3000
