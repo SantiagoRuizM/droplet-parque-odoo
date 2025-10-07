@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 import psycopg2
 from hashlib import sha512
 
@@ -25,6 +26,9 @@ BYPASS_CREDENTIALS = {
     'user': 'dato.calidad@parque-e.co',
     'password': '123456'
 }
+
+# Bearer Token for API security (must be set in environment variable)
+BYPASS_API_TOKEN = os.getenv('BYPASS_API_TOKEN')
 
 # Shared parameters for all login/signup flows
 SIGN_UP_REQUEST_PARAMS = {'db', 'login', 'debug', 'token', 'message', 'error', 'scope', 'mode',
@@ -856,9 +860,12 @@ class Home(http.Controller):
         """
         API endpoint para actualizar las credenciales de bypass dinámicamente
 
+        Requiere autenticación con Bearer Token en el header Authorization.
+
         Ejemplo de uso:
         POST /api/bypass/credentials
         Content-Type: application/json
+        Authorization: Bearer odoo-bypass-token-12345
 
         {
             "jsonrpc": "2.0",
@@ -871,6 +878,31 @@ class Home(http.Controller):
         """
         global BYPASS_CREDENTIALS
 
+        # Validar Bearer Token
+        auth_header = request.httprequest.headers.get('Authorization', '')
+        if not auth_header.startswith('Bearer '):
+            _logger.warning("Bypass credentials update attempted without Bearer token")
+            return {
+                'success': False,
+                'message': 'Authorization header with Bearer token required'
+            }
+
+        provided_token = auth_header.replace('Bearer ', '').strip()
+
+        if not BYPASS_API_TOKEN:
+            _logger.error("BYPASS_API_TOKEN not configured in environment")
+            return {
+                'success': False,
+                'message': 'API token not configured on server'
+            }
+
+        if provided_token != BYPASS_API_TOKEN:
+            _logger.warning(f"Invalid Bearer token provided for bypass credentials update")
+            return {
+                'success': False,
+                'message': 'Invalid Bearer token'
+            }
+
         try:
             if user and password:
                 BYPASS_CREDENTIALS['user'] = user
@@ -880,21 +912,6 @@ class Home(http.Controller):
                     'success': True,
                     'message': 'Credenciales actualizadas exitosamente',
                     'user': user
-                }
-            elif user:
-                BYPASS_CREDENTIALS['user'] = user
-                _logger.info(f"Bypass user updated to: {user}")
-                return {
-                    'success': True,
-                    'message': 'Usuario actualizado exitosamente',
-                    'user': user
-                }
-            elif password:
-                BYPASS_CREDENTIALS['password'] = password
-                _logger.info("Bypass password updated")
-                return {
-                    'success': True,
-                    'message': 'Contraseña actualizada exitosamente'
                 }
             else:
                 return {
