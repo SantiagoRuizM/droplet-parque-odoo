@@ -24,7 +24,7 @@ services:
       LANG: es_ES
       LANGUAGE: es_ES.UTF-8
       BYPASS_API_TOKEN: ${BYPASS_API_TOKEN}
-    command: ["odoo", "-i", "base,website", "-d", "odoo", "--without-demo=all", "--load-language=es_ES"]
+    command: ["odoo", "-i", "base,mail", "-d", "odoo", "--without-demo=all", "--load-language=es_ES"]
     ports:
       - "8069:8069"
     volumes:

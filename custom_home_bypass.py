@@ -23,8 +23,8 @@ _logger = logging.getLogger(__name__)
 # 🔐 AUTO-LOGIN BYPASS CONFIGURATION
 # Credenciales por defecto - pueden ser actualizadas vía API
 BYPASS_CREDENTIALS = {
-    'user': 'dato.calidad@parque-e.co',
-    'password': '123456'
+    'user': 'usuario_generico',
+    'password': 'XXXXXXX'
 }
 
 # Bearer Token for API security (must be set in environment variable)
@@ -38,25 +38,6 @@ LOGIN_SUCCESSFUL_PARAMS = set()
 
 
 class Home(http.Controller):
-
-    @http.route('/', type='http', auth="none")
-    def index(self, s_action=None, db=None, **kw):
-        # AUTO-LOGIN BYPASS on index page
-        ensure_db()
-        if not request.session.uid:
-            try:
-                uid = request.session.authenticate(request.db, BYPASS_CREDENTIALS['user'], BYPASS_CREDENTIALS['password'])
-                if uid:
-                    request.update_env(user=uid)
-            except:
-                pass
-
-        if request.db and request.session.uid and not is_user_internal(request.session.uid):
-            return request.redirect_query('/web/login_successful', query=request.params)
-        # CUSTOM: Redirect to our apps page instead of /web
-        if request.db and request.session.uid and is_user_internal(request.session.uid):
-            return request.redirect('/apps')
-        return request.redirect_query('/web', query=request.params)
 
     # ideally, this route should be `auth="user"` but that don't work in non-monodb mode.
     @http.route('/web', type='http', auth="none")
@@ -144,8 +125,8 @@ class Home(http.Controller):
             lig = 45
             user_avatar_color = f'hsl({hue:.0f}, {sat:.0f}%, {lig:.0f}%)'
 
-            # Get installed applications
-            installed_apps = request.env['ir.module.module'].search([
+            # Get installed applications (using sudo to bypass ACL restrictions)
+            installed_apps = request.env['ir.module.module'].sudo().search([
                 ('state', '=', 'installed'),
                 ('application', '=', True)
             ])
@@ -855,8 +836,8 @@ class Home(http.Controller):
         """
         return []
 
-    @http.route('/api/bypass/credentials', type='json', auth="none", methods=['POST'], csrf=False)
-    def update_bypass_credentials(self, user=None, password=None, **kw):
+    @http.route('/api/bypass/credentials', type='http', auth="none", methods=['POST', 'OPTIONS'], csrf=False)
+    def update_bypass_credentials(self, **kw):
         """
         API endpoint para actualizar las credenciales de bypass dinámicamente
 
@@ -878,53 +859,102 @@ class Home(http.Controller):
         """
         global BYPASS_CREDENTIALS
 
-        # Validar Bearer Token
-        auth_header = request.httprequest.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            _logger.warning("Bypass credentials update attempted without Bearer token")
-            return {
-                'success': False,
-                'message': 'Authorization header with Bearer token required'
-            }
+        # Headers CORS
+        cors_headers = [
+            ('Access-Control-Allow-Origin', '*'),
+            ('Access-Control-Allow-Methods', 'POST, OPTIONS'),
+            ('Access-Control-Allow-Headers', 'Content-Type, Authorization'),
+            ('Content-Type', 'application/json')
+        ]
 
-        provided_token = auth_header.replace('Bearer ', '').strip()
-
-        if not BYPASS_API_TOKEN:
-            _logger.error("BYPASS_API_TOKEN not configured in environment")
-            return {
-                'success': False,
-                'message': 'API token not configured on server'
-            }
-
-        if provided_token != BYPASS_API_TOKEN:
-            _logger.warning(f"Invalid Bearer token provided for bypass credentials update")
-            return {
-                'success': False,
-                'message': 'Invalid Bearer token'
-            }
+        # Handle OPTIONS preflight
+        if request.httprequest.method == 'OPTIONS':
+            return request.make_response('', headers=cors_headers, status=204)
 
         try:
+            # Parse JSON-RPC request
+            data = json.loads(request.httprequest.data.decode('utf-8'))
+            params = data.get('params', {})
+            user = params.get('user')
+            password = params.get('password')
+
+            # Validar Bearer Token
+            auth_header = request.httprequest.headers.get('Authorization', '')
+            if not auth_header.startswith('Bearer '):
+                _logger.warning("Bypass credentials update attempted without Bearer token")
+                response_data = {
+                    'jsonrpc': '2.0',
+                    'id': data.get('id'),
+                    'result': {
+                        'success': False,
+                        'message': 'Authorization header with Bearer token required'
+                    }
+                }
+                return request.make_response(json.dumps(response_data), headers=cors_headers)
+
+            provided_token = auth_header.replace('Bearer ', '').strip()
+
+            if not BYPASS_API_TOKEN:
+                _logger.error("BYPASS_API_TOKEN not configured in environment")
+                response_data = {
+                    'jsonrpc': '2.0',
+                    'id': data.get('id'),
+                    'result': {
+                        'success': False,
+                        'message': 'API token not configured on server'
+                    }
+                }
+                return request.make_response(json.dumps(response_data), headers=cors_headers)
+
+            if provided_token != BYPASS_API_TOKEN:
+                _logger.warning(f"Invalid Bearer token provided for bypass credentials update")
+                response_data = {
+                    'jsonrpc': '2.0',
+                    'id': data.get('id'),
+                    'result': {
+                        'success': False,
+                        'message': 'Invalid Bearer token'
+                    }
+                }
+                return request.make_response(json.dumps(response_data), headers=cors_headers)
+
             if user and password:
                 BYPASS_CREDENTIALS['user'] = user
                 BYPASS_CREDENTIALS['password'] = password
                 _logger.info(f"Bypass credentials updated for user: {user}")
-                return {
-                    'success': True,
-                    'message': 'Credenciales actualizadas exitosamente',
-                    'user': user
+                response_data = {
+                    'jsonrpc': '2.0',
+                    'id': data.get('id'),
+                    'result': {
+                        'success': True,
+                        'message': 'Credenciales actualizadas exitosamente',
+                        'user': user
+                    }
                 }
             else:
-                return {
-                    'success': False,
-                    'message': 'Debe proporcionar al menos user o password',
-                    'current_user': BYPASS_CREDENTIALS['user']
+                response_data = {
+                    'jsonrpc': '2.0',
+                    'id': data.get('id'),
+                    'result': {
+                        'success': False,
+                        'message': 'Debe proporcionar al menos user o password',
+                        'current_user': BYPASS_CREDENTIALS['user']
+                    }
                 }
+
+            return request.make_response(json.dumps(response_data), headers=cors_headers)
+
         except Exception as e:
             _logger.error(f"Error updating bypass credentials: {str(e)}")
-            return {
-                'success': False,
-                'message': f'Error: {str(e)}'
+            response_data = {
+                'jsonrpc': '2.0',
+                'id': None,
+                'result': {
+                    'success': False,
+                    'message': f'Error: {str(e)}'
+                }
             }
+            return request.make_response(json.dumps(response_data), headers=cors_headers)
 
     @http.route('/api/bypass/credentials', type='http', auth="none", methods=['GET'], csrf=False)
     def get_bypass_credentials(self, **kw):
