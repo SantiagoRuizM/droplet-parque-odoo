@@ -221,8 +221,7 @@ def main():
     log("=" * 60, Colors.BLUE)
 
     log("\n✓ Script completado exitosamente!", Colors.GREEN)
-    log("\nPara usar un usuario en el bypass, edita custom_home_bypass.py línea 18:", Colors.BLUE)
-    log("  uid = request.session.authenticate(request.db, 'dato.calidad@parque-e.co', '123456')", Colors.YELLOW)
+
 
 if __name__ == "__main__":
     main()

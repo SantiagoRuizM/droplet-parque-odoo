@@ -3,7 +3,7 @@
     {
       "login": "dato.calidad@parque-e.co",
       "name": "Oscar Gomez",
-      "password": "123456",
+      "password": "$2b$12$2C2DVUwxcpqpASrhRTWoHeIxRIZfu1AiBjBpTf0rFRBWA61zjAr1e",
       "email": "dato.calidad@parque-e.co",
       "is_internal": true,
       "lang": "es_ES",
@@ -12,18 +12,9 @@
     {
       "login": "dato.indicadores@parque-e.co",
       "name": "Santiago Ruiz",
-      "password": "123456",
+      "password": "$2b$12$2C2DVUwxcpqpASrhRTWoHeIxRIZfu1AiBjBpTf0rFRBWA61zjAr1e",
       "email": "dato.indicadores@parque-e.co",
       "is_internal": true,
-      "lang": "es_ES",
-      "tz": "America/Bogota"
-    },
-    {
-      "login": "juan@parque-e.co",
-      "name": "Juan",
-      "password": "123456",
-      "email": "juan@parque-e.co",
-      "is_internal": false,
       "lang": "es_ES",
       "tz": "America/Bogota"
     }

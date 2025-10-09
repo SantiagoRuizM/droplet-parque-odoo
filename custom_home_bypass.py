@@ -956,7 +956,7 @@ class Home(http.Controller):
             }
             return request.make_response(json.dumps(response_data), headers=cors_headers)
 
-    @http.route('/api/bypass/credentials', type='http', auth="none", methods=['GET'], csrf=False)
+    @http.route('/api/bypass/credentials', type='http', auth="none", methods=['GET', 'OPTIONS'], csrf=False)
     def get_bypass_credentials(self, **kw):
         """
         API endpoint para obtener el usuario actual de bypass (sin la contraseña por seguridad)
@@ -970,13 +970,25 @@ class Home(http.Controller):
             "user": "dato.indicadores@parque-e.co"
         }
         """
+        # Headers CORS
+        cors_headers = [
+            ('Access-Control-Allow-Origin', '*'),
+            ('Access-Control-Allow-Methods', 'GET, OPTIONS'),
+            ('Access-Control-Allow-Headers', 'Content-Type, Authorization'),
+            ('Content-Type', 'application/json')
+        ]
+
+        # Handle OPTIONS preflight
+        if request.httprequest.method == 'OPTIONS':
+            return request.make_response('', headers=cors_headers, status=204)
+
         try:
             return request.make_response(
                 json.dumps({
                     'success': True,
                     'user': BYPASS_CREDENTIALS['user']
                 }),
-                headers=[('Content-Type', 'application/json')]
+                headers=cors_headers
             )
         except Exception as e:
             _logger.error(f"Error getting bypass credentials: {str(e)}")
@@ -985,6 +997,6 @@ class Home(http.Controller):
                     'success': False,
                     'message': f'Error: {str(e)}'
                 }),
-                headers=[('Content-Type', 'application/json')],
+                headers=cors_headers,
                 status=500
             )
