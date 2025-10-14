@@ -803,54 +803,24 @@ class Home(http.Controller):
                 if uid:
                     request.params['login_success'] = True
                     return request.redirect(self._login_redirect(uid, redirect=redirect))
-            except:
-                pass  # If auto-login fails, continue with normal flow
+                else:
+                    # If auto-login fails (no valid user), redirect to external login
+                    _logger.info("Auto-login failed: invalid credentials, redirecting to localhost:3000")
+                    return request.redirect('http://localhost:3000', 303)
+            except Exception as e:
+                # If auto-login fails with exception, redirect to external login
+                _logger.info(f"Auto-login failed with exception: {str(e)}, redirecting to localhost:3000")
+                return request.redirect('http://localhost:3000', 303)
 
+        # If already logged in, check for redirect
         request.params['login_success'] = False
         if request.httprequest.method == 'GET' and redirect and request.session.uid:
             return request.redirect(redirect)
 
-        # simulate hybrid auth=user/auth=public, despite using auth=none to be able
-        # to redirect users when no db is selected - cfr ensure_db()
-        if request.env.uid is None:
-            if request.session.uid is None:
-                # no user -> auth=public with specific website public user
-                request.env["ir.http"]._auth_method_public()
-            else:
-                # auth=user
-                request.update_env(user=request.session.uid)
-
-        values = {k: v for k, v in request.params.items() if k in SIGN_UP_REQUEST_PARAMS}
-        try:
-            values['databases'] = http.db_list()
-        except odoo.exceptions.AccessDenied:
-            values['databases'] = None
-
-        if request.httprequest.method == 'POST':
-            try:
-                uid = request.session.authenticate(request.db, request.params['login'], request.params['password'])
-                request.params['login_success'] = True
-                return request.redirect(self._login_redirect(uid, redirect=redirect))
-            except odoo.exceptions.AccessDenied as e:
-                if e.args == odoo.exceptions.AccessDenied().args:
-                    values['error'] = _("Wrong login/password")
-                else:
-                    values['error'] = e.args[0]
-        else:
-            if 'error' in request.params and request.params.get('error') == 'access':
-                values['error'] = _('Only employees can access this database. Please contact the administrator.')
-
-        if 'login' not in values and request.session.get('auth_login'):
-            values['login'] = request.session.get('auth_login')
-
-        if not odoo.tools.config['list_db']:
-            values['disable_database_manager'] = True
-
-        response = request.render('web.login', values)
-        response.headers['Cache-Control'] = 'no-cache'
-        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-        response.headers['Content-Security-Policy'] = "frame-ancestors 'self'"
-        return response
+        # If we reach here without a session, redirect to external login
+        if not request.session.uid:
+            _logger.info("No session found, redirecting to localhost:3000")
+            return request.redirect('http://localhost:3000', 303)
 
     @http.route('/web/login_successful', type='http', auth='user', website=True, sitemap=False)
     def login_successful_external_user(self, **kwargs):
@@ -1066,3 +1036,282 @@ class Home(http.Controller):
                 headers=cors_headers,
                 status=500
             )
+
+    @http.route('/', type='http', auth="none")
+    def root_redirect(self, **kw):
+        """Redirect root to custom 404 page"""
+        return self.custom_404_page()
+
+    def custom_404_page(self):
+        """Beautiful 404 error page with Parque branding"""
+        html_content = '''
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+            <title>Sesión Finalizada - Parque ERP</title>
+            <link type="image/x-icon" rel="shortcut icon" href="/web/static/img/icon-parque.png"/>
+
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                body {
+                    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+                    background: linear-gradient(135deg, #e85a2b 0%, #cc4a1d 100%);
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                }
+
+                .error-container {
+                    background: white;
+                    border-radius: 16px;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                    max-width: 600px;
+                    width: 100%;
+                    padding: 50px 40px;
+                    text-align: center;
+                    animation: fadeInUp 0.6s ease-out;
+                }
+
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                .logo-container {
+                    margin-bottom: 30px;
+                }
+
+                .logo {
+                    width: 80px;
+                    height: 80px;
+                    margin: 0 auto;
+                }
+
+                .error-code {
+                    font-size: 6rem;
+                    font-weight: 700;
+                    color: #e85a2b;
+                    line-height: 1;
+                    margin-bottom: 20px;
+                    text-shadow: 2px 2px 4px rgba(232, 90, 43, 0.1);
+                }
+
+                .error-title {
+                    font-size: 1.8rem;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin-bottom: 15px;
+                }
+
+                .error-message {
+                    font-size: 1.1rem;
+                    color: #7f8c8d;
+                    line-height: 1.6;
+                    margin-bottom: 30px;
+                }
+
+                .error-details {
+                    background: #f8f9fa;
+                    border-left: 4px solid #e85a2b;
+                    padding: 15px 20px;
+                    margin-bottom: 30px;
+                    text-align: left;
+                    border-radius: 4px;
+                }
+
+                .error-details p {
+                    margin: 5px 0;
+                    color: #555;
+                    font-size: 0.95rem;
+                }
+
+                .error-details strong {
+                    color: #2c3e50;
+                }
+
+                .buttons-container {
+                    display: flex;
+                    gap: 15px;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                    margin-bottom: 30px;
+                }
+
+                .btn {
+                    padding: 14px 32px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    border-radius: 8px;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                    border: none;
+                    cursor: pointer;
+                }
+
+                .btn-primary {
+                    background: #e85a2b;
+                    color: white;
+                    box-shadow: 0 4px 15px rgba(232, 90, 43, 0.3);
+                }
+
+                .btn-primary:hover {
+                    background: #cc4a1d;
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(232, 90, 43, 0.4);
+                }
+
+                .btn-secondary {
+                    background: white;
+                    color: #e85a2b;
+                    border: 2px solid #e85a2b;
+                }
+
+                .btn-secondary:hover {
+                    background: #fff5f2;
+                    transform: translateY(-2px);
+                }
+
+                .support-section {
+                    border-top: 1px solid #e0e0e0;
+                    padding-top: 25px;
+                    margin-top: 25px;
+                }
+
+                .support-title {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin-bottom: 10px;
+                }
+
+                .support-text {
+                    font-size: 0.9rem;
+                    color: #7f8c8d;
+                    margin-bottom: 15px;
+                }
+
+                .support-link {
+                    color: #e85a2b;
+                    text-decoration: none;
+                    font-weight: 600;
+                    transition: color 0.3s ease;
+                }
+
+                .support-link:hover {
+                    color: #cc4a1d;
+                    text-decoration: underline;
+                }
+
+                .footer {
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #e0e0e0;
+                    color: #95a5a6;
+                    font-size: 0.85rem;
+                }
+
+                .icon {
+                    width: 20px;
+                    height: 20px;
+                }
+
+                @media (max-width: 600px) {
+                    .error-container {
+                        padding: 30px 20px;
+                    }
+
+                    .error-code {
+                        font-size: 4rem;
+                    }
+
+                    .error-title {
+                        font-size: 1.4rem;
+                    }
+
+                    .buttons-container {
+                        flex-direction: column;
+                    }
+
+                    .btn {
+                        width: 100%;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="error-container">
+                <div class="logo-container">
+                    <img src="/web/static/img/icon-parque.png" alt="Parque ERP" class="logo" onerror="this.style.display='none'">
+                </div>
+
+                <div class="error-code">404</div>
+
+                <h1 class="error-title">Sesión Finalizada</h1>
+
+                <p class="error-message">
+                    Lo sentimos, tu sesión ha expirado o el recurso que buscas no está disponible.
+                </p>
+
+                <div class="error-details">
+                    <p><strong>Posibles causas:</strong></p>
+                    <p>• Tu sesión ha finalizado por inactividad</p>
+                    <p>• El enlace al que intentas acceder no existe</p>
+                    <p>• Problemas temporales con el servicio</p>
+                </div>
+
+                <div class="buttons-container">
+                    <a href="http://localhost:3000" class="btn btn-primary">
+                        <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+                        </svg>
+                        Volver al Inicio
+                    </a>
+                </div>
+
+                <div class="support-section">
+                    <h3 class="support-title">¿Necesitas ayuda?</h3>
+                    <p class="support-text">
+                        Si el problema persiste, por favor contacta a soporte técnico
+                    </p>
+                    <a href="http://localhost:3000/pqrs" class="support-link">
+                        📝 Reportar Problema (PQRS)
+                    </a>
+                </div>
+
+                <div class="footer">
+                    <p>Parque ERP &copy; 2024 | Sistema de Gestión Empresarial</p>
+                </div>
+            </div>
+
+            <script>
+                // Auto-redirect after 10 seconds (optional)
+                // setTimeout(() => {
+                //     window.location.href = 'http://localhost:3000';
+                // }, 10000);
+            </script>
+        </body>
+        </html>
+        '''
+
+        return request.make_response(html_content, [
+            ('Content-Type', 'text/html; charset=utf-8'),
+            ('Cache-Control', 'no-cache')
+        ], status=404)
