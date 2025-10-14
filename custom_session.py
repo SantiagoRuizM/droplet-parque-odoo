@@ -3,6 +3,7 @@
 import json
 import logging
 import operator
+import os
 
 from werkzeug.urls import url_encode
 
@@ -24,7 +25,12 @@ class Session(http.Controller):
     def get_session_info(self):
         # Crapy workaround for unupdatable Odoo Mobile App iOS (Thanks Apple :@)
         request.session.touch()
-        return request.env['ir.http'].session_info()
+        session_info = request.env['ir.http'].session_info()
+
+        # Add BYPASS_API_TOKEN from environment to session info
+        session_info['bypass_api_token'] = os.getenv('BYPASS_API_TOKEN')
+
+        return session_info
 
     @http.route('/web/session/authenticate', type='json', auth="none")
     def authenticate(self, db, login, password, base_location=None):
