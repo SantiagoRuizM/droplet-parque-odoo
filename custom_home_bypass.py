@@ -1060,23 +1060,27 @@ class Home(http.Controller):
                     box-sizing: border-box;
                 }
 
+                html, body {
+                    height: 100%;
+                    overflow: hidden;
+                }
+
                 body {
                     font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
                     background: linear-gradient(135deg, #e85a2b 0%, #cc4a1d 100%);
-                    min-height: 100vh;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    padding: 20px;
+                    padding: 15px;
                 }
 
                 .error-container {
                     background: white;
-                    border-radius: 16px;
+                    border-radius: 12px;
                     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                    max-width: 600px;
+                    max-width: 550px;
                     width: 100%;
-                    padding: 50px 40px;
+                    padding: 25px 30px;
                     text-align: center;
                     animation: fadeInUp 0.6s ease-out;
                 }
@@ -1093,51 +1097,52 @@ class Home(http.Controller):
                 }
 
                 .logo-container {
-                    margin-bottom: 30px;
+                    margin-bottom: 15px;
                 }
 
                 .logo {
-                    width: 80px;
-                    height: 80px;
+                    width: 60px;
+                    height: 60px;
                     margin: 0 auto;
                 }
 
                 .error-code {
-                    font-size: 6rem;
+                    font-size: 4.5rem;
                     font-weight: 700;
                     color: #e85a2b;
                     line-height: 1;
-                    margin-bottom: 20px;
+                    margin-bottom: 12px;
                     text-shadow: 2px 2px 4px rgba(232, 90, 43, 0.1);
                 }
 
                 .error-title {
-                    font-size: 1.8rem;
+                    font-size: 1.5rem;
                     font-weight: 600;
                     color: #2c3e50;
-                    margin-bottom: 15px;
+                    margin-bottom: 10px;
                 }
 
                 .error-message {
-                    font-size: 1.1rem;
+                    font-size: 0.95rem;
                     color: #7f8c8d;
-                    line-height: 1.6;
-                    margin-bottom: 30px;
+                    line-height: 1.4;
+                    margin-bottom: 18px;
                 }
 
                 .error-details {
                     background: #f8f9fa;
                     border-left: 4px solid #e85a2b;
-                    padding: 15px 20px;
-                    margin-bottom: 30px;
+                    padding: 10px 15px;
+                    margin-bottom: 18px;
                     text-align: left;
                     border-radius: 4px;
                 }
 
                 .error-details p {
-                    margin: 5px 0;
+                    margin: 3px 0;
                     color: #555;
-                    font-size: 0.95rem;
+                    font-size: 0.85rem;
+                    line-height: 1.3;
                 }
 
                 .error-details strong {
@@ -1146,15 +1151,15 @@ class Home(http.Controller):
 
                 .buttons-container {
                     display: flex;
-                    gap: 15px;
+                    gap: 12px;
                     justify-content: center;
                     flex-wrap: wrap;
-                    margin-bottom: 30px;
+                    margin-bottom: 18px;
                 }
 
                 .btn {
-                    padding: 14px 32px;
-                    font-size: 1rem;
+                    padding: 11px 28px;
+                    font-size: 0.95rem;
                     font-weight: 600;
                     border-radius: 8px;
                     text-decoration: none;
@@ -1178,40 +1183,30 @@ class Home(http.Controller):
                     box-shadow: 0 6px 20px rgba(232, 90, 43, 0.4);
                 }
 
-                .btn-secondary {
-                    background: white;
-                    color: #e85a2b;
-                    border: 2px solid #e85a2b;
-                }
-
-                .btn-secondary:hover {
-                    background: #fff5f2;
-                    transform: translateY(-2px);
-                }
-
                 .support-section {
                     border-top: 1px solid #e0e0e0;
-                    padding-top: 25px;
-                    margin-top: 25px;
+                    padding-top: 15px;
+                    margin-top: 15px;
                 }
 
                 .support-title {
-                    font-size: 1rem;
+                    font-size: 0.9rem;
                     font-weight: 600;
                     color: #2c3e50;
-                    margin-bottom: 10px;
+                    margin-bottom: 6px;
                 }
 
                 .support-text {
-                    font-size: 0.9rem;
+                    font-size: 0.8rem;
                     color: #7f8c8d;
-                    margin-bottom: 15px;
+                    margin-bottom: 10px;
                 }
 
                 .support-link {
                     color: #e85a2b;
                     text-decoration: none;
                     font-weight: 600;
+                    font-size: 0.85rem;
                     transition: color 0.3s ease;
                 }
 
@@ -1221,37 +1216,69 @@ class Home(http.Controller):
                 }
 
                 .footer {
-                    margin-top: 30px;
-                    padding-top: 20px;
+                    margin-top: 15px;
+                    padding-top: 12px;
                     border-top: 1px solid #e0e0e0;
                     color: #95a5a6;
-                    font-size: 0.85rem;
+                    font-size: 0.75rem;
                 }
 
                 .icon {
-                    width: 20px;
-                    height: 20px;
+                    width: 18px;
+                    height: 18px;
                 }
 
                 @media (max-width: 600px) {
                     .error-container {
-                        padding: 30px 20px;
+                        padding: 20px 18px;
                     }
 
                     .error-code {
-                        font-size: 4rem;
+                        font-size: 3.5rem;
                     }
 
                     .error-title {
-                        font-size: 1.4rem;
+                        font-size: 1.3rem;
                     }
 
-                    .buttons-container {
-                        flex-direction: column;
+                    .logo {
+                        width: 50px;
+                        height: 50px;
+                    }
+                }
+
+                @media (max-height: 700px) {
+                    .error-container {
+                        padding: 18px 25px;
                     }
 
-                    .btn {
-                        width: 100%;
+                    .logo {
+                        width: 50px;
+                        height: 50px;
+                    }
+
+                    .error-code {
+                        font-size: 3.5rem;
+                        margin-bottom: 8px;
+                    }
+
+                    .error-title {
+                        font-size: 1.3rem;
+                    }
+
+                    .error-message {
+                        font-size: 0.85rem;
+                        margin-bottom: 12px;
+                    }
+
+                    .error-details {
+                        padding: 8px 12px;
+                        margin-bottom: 12px;
+                    }
+
+                    .error-details p {
+                        font-size: 0.8rem;
+                        margin: 2px 0;
                     }
                 }
             </style>
@@ -1289,7 +1316,7 @@ class Home(http.Controller):
                 <div class="support-section">
                     <h3 class="support-title">¿Necesitas ayuda?</h3>
                     <p class="support-text">
-                        Si el problema persiste, por favor contacta a soporte técnico
+                        Si el problema persiste, contacta a soporte técnico
                     </p>
                     <a href="http://localhost:3000/pqrs" class="support-link">
                         📝 Reportar Problema (PQRS)
@@ -1300,13 +1327,6 @@ class Home(http.Controller):
                     <p>Parque ERP &copy; 2024 | Sistema de Gestión Empresarial</p>
                 </div>
             </div>
-
-            <script>
-                // Auto-redirect after 10 seconds (optional)
-                // setTimeout(() => {
-                //     window.location.href = 'http://localhost:3000';
-                // }, 10000);
-            </script>
         </body>
         </html>
         '''
